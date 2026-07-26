@@ -121,6 +121,7 @@
     "files": [
       "src/main/**/*",
       "src/preload/**/*",
+      "src/cli/**/*",
       "dist/**/*",
       "data/**/*",
       "scripts/**/*"
