@@ -1,7 +1,15 @@
 const { SafetyManager } = require('../utils/safety');
 const { UpgradeManager } = require('../utils/upgrade');
 const { USBManager } = require('../utils/usb');
-const ora = require('ora').default || require('ora');
+
+/** Lazy ora — ESM-only in asar, load inside function not module scope */
+function getOra() {
+  try {
+    return require('ora').default || require('ora');
+  } catch {
+    return () => ({ start: () => ({ succeed: () => {}, fail: () => {} }), succeed: () => {}, fail: () => {} });
+  }
+}
 
 /**
  * Guided installation with safety confirmations (advanced mode)
@@ -10,7 +18,7 @@ const ora = require('ora').default || require('ora');
 async function guidedInstall(options) {
   const safety = new SafetyManager(options.dryRun ? 'dry-run' : 'guided');
   const manager = new UpgradeManager(options);
-  const spinner = ora('🔍 Preparing installation...').start();
+  const spinner = getOra()('🔍 Preparing installation...').start();
 
   try {
     // Detect current state

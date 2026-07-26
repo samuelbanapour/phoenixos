@@ -146,6 +146,37 @@ export default function DetectPage() {
             })}
           </div>
 
+          {/* Connected devices (iPads, iPhones, Android via USB) */}
+          {hardware.connectedDevices && hardware.connectedDevices.length > 0 && (
+            <div className="glass rounded-xl p-5">
+              <h3 className="font-semibold text-white mb-3 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-phoenix-500" />
+                Connected Devices ({hardware.connectedDevices.length})
+              </h3>
+              <div className="space-y-2">
+                {hardware.connectedDevices.map((dev, i) => (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-lg bg-dark-800/50">
+                    <span className="text-2xl">{dev.type === 'iOS' ? '📱' : '🤖'}</span>
+                    <div className="flex-1">
+                      <p className="text-white font-medium text-sm">{dev.modelName || dev.productType || 'Unknown Device'}</p>
+                      <p className="text-xs text-dark-400">
+                        {dev.type}{dev.iosVersion ? ` • iOS ${dev.iosVersion}` : ''}
+                        {dev.productType ? ` • ${dev.productType}` : ''}
+                        {dev.method ? ` • via ${dev.method}` : ' • via USB'}
+                      </p>
+                    </div>
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-green-500/10 text-green-400 border border-green-500/30">
+                      Connected
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-dark-500 mt-3">
+                ℹ️ Connected iOS devices can be force-upgraded from the <span className="text-phoenix-400">Upgrade</span> page
+              </p>
+            </div>
+          )}
+
           {/* Compatibility summary */}
           <div className="glass rounded-xl p-5">
             <h3 className="font-semibold text-white mb-3 flex items-center gap-2">

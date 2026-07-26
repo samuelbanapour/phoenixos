@@ -1,13 +1,24 @@
 const { detectLocalHardware } = require('../utils/hardware');
 const path = require('path');
 const fs = require('fs');
-const ora = require('ora').default || require('ora');
+
+/**
+ * Lazy ora import — needed because ora is ESM-only. At module scope it breaks
+ * when the main process loads this file (for scoreOSMatch) inside the asar.
+ */
+function getOra() {
+  try {
+    return require('ora').default || require('ora');
+  } catch {
+    return () => ({ start: () => ({ succeed: () => {}, fail: () => {} }), succeed: () => {}, fail: () => {} });
+  }
+}
 
 /**
  * Recommend the best OS for detected or specified hardware
  */
 async function recommendOS(options) {
-  const spinner = ora('🔍 Analyzing hardware and matching OSes...').start();
+  const spinner = getOra()('🔍 Analyzing hardware and matching OSes...').start();
 
   try {
     // Load OS database

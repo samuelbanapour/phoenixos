@@ -1,11 +1,19 @@
 const { UpgradeManager } = require('../utils/upgrade');
-const ora = require('ora').default || require('ora');
+
+/** Lazy ora — ESM-only in asar, load inside function not module scope */
+function getOra() {
+  try {
+    return require('ora').default || require('ora');
+  } catch {
+    return () => ({ start: () => ({ succeed: () => {}, fail: () => {} }), succeed: () => {}, fail: () => {} });
+  }
+}
 
 /**
  * Force in-place OS upgrade with bypass patches
  */
 async function upgradeOS(options) {
-  const spinner = ora('🔍 Detecting current OS...').start();
+  const spinner = getOra()('🔍 Detecting current OS...').start();
   const manager = new UpgradeManager(options);
 
   try {

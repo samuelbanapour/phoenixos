@@ -1,12 +1,20 @@
 const { USBManager } = require('../utils/usb');
 const { SafetyManager } = require('../utils/safety');
-const ora = require('ora').default || require('ora');
+
+/** Lazy ora — ESM-only in asar, load inside function not module scope */
+function getOra() {
+  try {
+    return require('ora').default || require('ora');
+  } catch {
+    return () => ({ start: () => ({ succeed: () => {}, fail: () => {} }), succeed: () => {}, fail: () => {} });
+  }
+}
 
 /**
  * Create bootable media with optional bypass patches
  */
 async function createMedia(options) {
-  const spinner = ora('🔍 Detecting USB drives...').start();
+  const spinner = getOra()('🔍 Detecting USB drives...').start();
   const safety = new SafetyManager(options.dryRun ? 'dry-run' : 'usb-only');
   const usb = new USBManager();
 

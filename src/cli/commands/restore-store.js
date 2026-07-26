@@ -1,11 +1,19 @@
 const { AppStoreManager } = require('../utils/appstore');
-const ora = require('ora').default || require('ora');
+
+/** Lazy ora — ESM-only in asar, load inside function not module scope */
+function getOra() {
+  try {
+    return require('ora').default || require('ora');
+  } catch {
+    return () => ({ start: () => ({ succeed: () => {}, fail: () => {} }), succeed: () => {}, fail: () => {} });
+  }
+}
 
 /**
  * Restore app store functionality on a system
  */
 async function restoreStore(options) {
-  const spinner = ora('🔍 Detecting target OS...').start();
+  const spinner = getOra()('🔍 Detecting target OS...').start();
   const manager = new AppStoreManager(options);
 
   try {

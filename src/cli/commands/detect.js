@@ -1,8 +1,16 @@
 const { detectLocalHardware } = require('../utils/hardware');
-const ora = require('ora').default || require('ora');
+
+/** Lazy ora — ESM-only in asar, load inside function not module scope */
+function getOra() {
+  try {
+    return require('ora').default || require('ora');
+  } catch {
+    return () => ({ start: () => ({ succeed: () => {}, fail: () => {} }), succeed: () => {}, fail: () => {} });
+  }
+}
 
 async function detectHardware(options) {
-  const spinner = ora('🔍 Scanning hardware...').start();
+  const spinner = getOra()('🔍 Scanning hardware...').start();
 
   try {
     const hardware = await detectLocalHardware();

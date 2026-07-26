@@ -22,6 +22,7 @@ async function detectLocalHardware() {
     tpm: detectTPM(),
     secureBoot: detectSecureBoot(),
     battery: detectBattery(),
+    connectedDevices: detectConnectedDevices(),
   };
 
   return hardware;
@@ -350,6 +351,101 @@ function parseSize(sizeStr) {
   const unit = match[2].toUpperCase();
   const units = { '': 1, 'K': 1024, 'M': 1024 * 1024, 'G': 1024 * 1024 * 1024, 'T': 1024 * 1024 * 1024 * 1024 };
   return Math.round((value * (units[unit] || 1)) / (1024 * 1024 * 1024) * 10) / 10;
+}
+
+/**
+ * Detect connected devices (iOS/iPadOS via USB)
+ */
+function detectConnectedDevices() {
+  const devices = [];
+
+  // Try libimobiledevice (best — gives full model/OS info)
+  try {
+    const deviceList = execSync('idevice_id -l 2>/dev/null', { encoding: 'utf8' }).trim();
+    if (deviceList) {
+      const serials = deviceList.split('\n').filter(s => s.trim());
+      for (const serial of serials) {
+        try {
+          const info = execSync(`ideviceinfo -s ${serial} 2>/dev/null`, { encoding: 'utf8' }).trim();
+          const getVal = (key) => { const m = info.match(new RegExp(key + ': (.+)')); return m ? m[1].trim() : null; };
+          const productType = getVal('ProductType') || '';
+          const iosVersion = getVal('ProductVersion') || '';
+          const modelName = getVal('DeviceName') || '';
+
+          devices.push({
+            type: 'iOS',
+            serial,
+            productType,
+            modelName,
+            iosVersion,
+            connected: true,
+          });
+        } catch {
+          devices.push({ type: 'iOS', serial, connected: true, modelName: 'iPad/iPhone (via libimobiledevice)' });
+        }
+      }
+      if (devices.length > 0) return devices;
+    }
+  } catch {}
+
+  // Fallback: check via system_profiler on macOS
+  try {
+    if (os.platform() === 'darwin') {
+      const output = execSync(
+        `system_profiler SPUSBDataType -json 2>/dev/null | python3 -c "
+import json, sys
+d = json.load(sys.stdin)
+def find_ios(items, depth=0):
+    if depth > 5: return
+    if isinstance(items, dict):
+        for k, v in items.items():
+            if isinstance(v, str) and 'iPad' in v or 'iPhone' in v or 'iPod' in v:
+                print(f'FOUND: {v}')
+            find_ios(v, depth+1)
+        if isinstance(items.get('_items'), list):
+            for i in items['_items']:
+                find_ios(i, depth+1)
+        for k, v in items.items():
+            if k != '_items' and not isinstance(v, (str, list)):
+                find_ios(v, depth+1)
+    elif isinstance(items, list):
+        for i in items:
+            find_ios(i, depth+1)
+find_ios(d)
+" 2>/dev/null`, { encoding: 'utf8' }).trim();
+
+      const found = output.split('\n').filter(l => l.startsWith('FOUND:'));
+      for (const line of found) {
+        const name = line.replace('FOUND: ', '');
+        devices.push({
+          type: 'iOS',
+          modelName: name,
+          connected: true,
+          method: 'usb_detection',
+        });
+      }
+    }
+  } catch {}
+
+  // Check via ADB for Android devices too
+  try {
+    const adbDevices = execSync('adb devices -l 2>/dev/null', { encoding: 'utf8' }).trim();
+    const lines = adbDevices.split('\n').filter(l => l.includes('device') && !l.includes('List'));
+    for (const line of lines) {
+      const parts = line.split(/\s+/);
+      const serial = parts[0];
+      const modelMatch = line.match(/model:(\S+)/);
+      devices.push({
+        type: 'Android',
+        serial,
+        modelName: modelMatch ? modelMatch[1] : 'Android device',
+        connected: true,
+        method: 'adb',
+      });
+    }
+  } catch {}
+
+  return devices;
 }
 
 module.exports = { detectLocalHardware };
