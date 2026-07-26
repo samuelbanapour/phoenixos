@@ -1,7 +1,7 @@
 const { detectLocalHardware } = require('../utils/hardware');
 const path = require('path');
 const fs = require('fs');
-const ora = require('ora');
+const ora = require('ora').default || require('ora');
 
 /**
  * Recommend the best OS for detected or specified hardware
@@ -47,7 +47,7 @@ function scoreOSMatch(hardware, osDB, intent) {
 
   for (const os of osDB.oses) {
     const score = {
-      os: os.name,
+      os: os.os || os.name,
       version: os.version,
       category: os.category,
       score: 0,

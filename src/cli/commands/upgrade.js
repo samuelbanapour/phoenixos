@@ -1,5 +1,5 @@
 const { UpgradeManager } = require('../utils/upgrade');
-const ora = require('ora');
+const ora = require('ora').default || require('ora');
 
 /**
  * Force in-place OS upgrade with bypass patches

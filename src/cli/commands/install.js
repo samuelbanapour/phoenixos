@@ -1,7 +1,7 @@
 const { SafetyManager } = require('../utils/safety');
 const { UpgradeManager } = require('../utils/upgrade');
 const { USBManager } = require('../utils/usb');
-const ora = require('ora');
+const ora = require('ora').default || require('ora');
 
 /**
  * Guided installation with safety confirmations (advanced mode)

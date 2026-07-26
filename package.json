@@ -13,7 +13,16 @@
     "dev:web": "vite --config vite.config.js",
     "build": "vite build --config vite.config.js && electron-builder",
     "build:web": "vite build --config vite.config.js",
-    "cli": "node src/cli/index.js"
+    "cli": "node src/cli/index.js",
+    "build:mac-arm64": "vite build --config vite.config.js && electron-builder --mac --arm64",
+    "build:mac-x64": "vite build --config vite.config.js && electron-builder --mac --x64",
+    "build:mac-universal": "vite build --config vite.config.js && electron-builder --mac --universal",
+    "build:win-arm64": "vite build --config vite.config.js && electron-builder --win --arm64",
+    "build:win-x64": "vite build --config vite.config.js && electron-builder --win --x64",
+    "build:linux-arm64": "vite build --config vite.config.js && electron-builder --linux --arm64",
+    "build:linux-x64": "vite build --config vite.config.js && electron-builder --linux --x64",
+    "build:all": "vite build --config vite.config.js && electron-builder -mwl",
+    "sign:adhoc": "bash scripts/adhoc-sign.sh"
   },
   "dependencies": {
     "adm-zip": "^0.5.10",
@@ -33,7 +42,7 @@
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
-    "electron": "^28.1.0",
+    "electron": "^28.3.3",
     "electron-builder": "^24.9.1",
     "framer-motion": "^10.16.16",
     "postcss": "^8.4.32",
@@ -47,18 +56,67 @@
   "build": {
     "appId": "com.phoenixos.app",
     "productName": "PhoenixOS",
+    "afterSign": "scripts/notarize.js",
     "mac": {
       "category": "public.app-category.utilities",
       "icon": "resources/icon.png",
-      "target": "dmg"
+      "target": [
+        {
+          "target": "dmg",
+          "arch": "arm64"
+        },
+        {
+          "target": "dmg",
+          "arch": "x64"
+        },
+        {
+          "target": "dmg",
+          "arch": "universal"
+        }
+      ],
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "entitlements": null,
+      "entitlementsInherit": null
     },
     "win": {
       "icon": "resources/icon.png",
-      "target": "nsis"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": "arm64"
+        },
+        {
+          "target": "nsis",
+          "arch": "x64"
+        }
+      ],
+      "signingHashAlgorithms": null,
+      "sign": null,
+      "certificateFile": null,
+      "rfc3161TimeStampServer": null
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PhoenixOS"
     },
     "linux": {
       "icon": "resources/icon.png",
-      "target": "AppImage"
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": "arm64"
+        },
+        {
+          "target": "AppImage",
+          "arch": "x64"
+        }
+      ],
+      "category": "Utility"
     },
     "files": [
       "src/main/**/*",

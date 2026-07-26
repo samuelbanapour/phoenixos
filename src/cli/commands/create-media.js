@@ -1,6 +1,6 @@
 const { USBManager } = require('../utils/usb');
 const { SafetyManager } = require('../utils/safety');
-const ora = require('ora');
+const ora = require('ora').default || require('ora');
 
 /**
  * Create bootable media with optional bypass patches

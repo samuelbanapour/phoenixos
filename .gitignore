@@ -3,3 +3,17 @@ dist/
 release/
 *.log
 .DS_Store
+
+# Build artifacts
+release/
+dist/
+
+# Generate adhoc key exports
+release/PhoenixOS-adhoc*.asc
+
+# Yarn lock (we use npm)
+yarn.lock
+
+# Temp / build artifacts
+*.tgz
+tmp/

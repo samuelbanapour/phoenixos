@@ -1,5 +1,5 @@
 const { AppStoreManager } = require('../utils/appstore');
-const ora = require('ora');
+const ora = require('ora').default || require('ora');
 
 /**
  * Restore app store functionality on a system

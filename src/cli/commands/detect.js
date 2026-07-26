@@ -1,5 +1,5 @@
 const { detectLocalHardware } = require('../utils/hardware');
-const ora = require('ora');
+const ora = require('ora').default || require('ora');
 
 async function detectHardware(options) {
   const spinner = ora('🔍 Scanning hardware...').start();
