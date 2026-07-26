@@ -452,27 +452,308 @@ Windows Registry Editor Version 5.00
     }
   }
 
-  async setupAndroidAppStores(device, romName) {
-    console.log('  🏪 Setting up app stores...');
-    const stores = [];
+  // === iOS/iPadOS-specific helpers ===
 
-    if (romName === 'lineageos' || romName === 'e-os') {
-      stores.push('MicroG (Google Play replacement)');
-      stores.push('Aurora Store (Play Store alternative)');
-      stores.push('F-Droid (open source apps)');
-      stores.push('Obtainium (app updater)');
+  static iPadModelMapping = {
+    // iPad Pro
+    'iPad Pro 12.9" 6th': { chip: 'M2', maxOS: 'iPadOS 18' },
+    'iPad Pro 12.9" 5th': { chip: 'M1', maxOS: 'iPadOS 18' },
+    'iPad Pro 12.9" 4th': { chip: 'A12Z', maxOS: 'iPadOS 18' },
+    'iPad Pro 12.9" 3rd': { chip: 'A12X', maxOS: 'iPadOS 18' },
+    'iPad Pro 12.9" 2nd': { chip: 'A10X', maxOS: 'iPadOS 16' },
+    'iPad Pro 12.9" 1st': { chip: 'A9X', maxOS: 'iPadOS 15' },
+    'iPad Pro 11" 4th': { chip: 'M4', maxOS: 'iPadOS 18' },
+    'iPad Pro 11" 3rd': { chip: 'M2', maxOS: 'iPadOS 18' },
+    'iPad Pro 11" 2nd': { chip: 'M1', maxOS: 'iPadOS 18' },
+    'iPad Pro 11" 1st': { chip: 'A12X', maxOS: 'iPadOS 18' },
+    'iPad Pro 10.5"': { chip: 'A10X', maxOS: 'iPadOS 16' },
+    'iPad Pro 9.7"': { chip: 'A9X', maxOS: 'iPadOS 15' },
+
+    // iPad Air
+    'iPad Air 6th': { chip: 'M2', maxOS: 'iPadOS 18' },
+    'iPad Air 5th': { chip: 'M1', maxOS: 'iPadOS 18' },
+    'iPad Air 4th': { chip: 'A14', maxOS: 'iPadOS 18' },
+    'iPad Air 3rd': { chip: 'A12', maxOS: 'iPadOS 18' },
+    'iPad Air 2': { chip: 'A8X', maxOS: 'iPadOS 14' },
+    'iPad Air 1st': { chip: 'A7', maxOS: 'iOS 12' },
+
+    // iPad
+    'iPad 10th': { chip: 'A14', maxOS: 'iPadOS 18' },
+    'iPad 9th': { chip: 'A13', maxOS: 'iPadOS 18' },
+    'iPad 8th': { chip: 'A12', maxOS: 'iPadOS 18' },
+    'iPad 7th': { chip: 'A10', maxOS: 'iPadOS 16' },
+    'iPad 6th': { chip: 'A10', maxOS: 'iPadOS 16' },
+    'iPad 5th': { chip: 'A9', maxOS: 'iPadOS 16' },
+    'iPad 4th': { chip: 'A6X', maxOS: 'iOS 10' },
+    'iPad 3rd': { chip: 'A5X', maxOS: 'iOS 9' },
+    'iPad 2nd': { chip: 'A5', maxOS: 'iOS 9' },
+
+    // iPad mini
+    'iPad mini 7th': { chip: 'A17 Pro', maxOS: 'iPadOS 18' },
+    'iPad mini 6th': { chip: 'A15', maxOS: 'iPadOS 18' },
+    'iPad mini 5th': { chip: 'A12', maxOS: 'iPadOS 18' },
+    'iPad mini 4th': { chip: 'A8', maxOS: 'iPadOS 14' },
+    'iPad mini 3rd': { chip: 'A7', maxOS: 'iOS 12' },
+    'iPad mini 2nd': { chip: 'A7', maxOS: 'iOS 12' },
+    'iPad mini 1st': { chip: 'A5', maxOS: 'iOS 9' },
+  };
+
+  async detectIOSDevice() {
+    try {
+      // Try libimobiledevice first
+      const devices = execSync('idevice_id -l 2>/dev/null || echo ""', { encoding: 'utf8' }).trim();
+      if (!devices) {
+        // Fall back to checking if we can list devices via system_profiler (macOS)
+        try {
+          const profiler = execSync('system_profiler SPUSBDataType 2>/dev/null | grep -A 10 "iPad\\|iPhone\\|iPod" | head -20', { encoding: 'utf8' }).trim();
+          if (!profiler) return null;
+        } catch {
+          return null;
+        }
+      }
+
+      const serial = devices.split('\n')[0];
+      let deviceInfo = { serial: serial || 'unknown' };
+
+      // Get detailed info from ideviceinfo if available
+      if (serial) {
+        try {
+          const info = execSync(`ideviceinfo -s ${serial} 2>/dev/null`, { encoding: 'utf8' }).trim();
+          const getVal = (key) => { const m = info.match(new RegExp(key + ': (.+)')); return m ? m[1].trim() : null; };
+
+          deviceInfo = {
+            serial,
+            model: getVal('ProductType') || getVal('DeviceName') || 'iPad',
+            modelNumber: getVal('ModelNumber') || '',
+            iosVersion: getVal('ProductVersion') || '',
+            buildVersion: getVal('BuildVersion') || '',
+            productType: getVal('ProductType') || '',
+          };
+
+          // Map ProductType to iPad model name
+          const prods = {
+            'iPad13,18':'iPad 10th', 'iPad13,19':'iPad 10th',
+            'iPad12,1':'iPad 9th', 'iPad12,2':'iPad 9th',
+            'iPad11,6':'iPad 8th', 'iPad11,7':'iPad 8th',
+            'iPad7,11':'iPad 7th', 'iPad7,12':'iPad 7th',
+            'iPad7,5':'iPad 6th', 'iPad7,6':'iPad 6th',
+            'iPad6,11':'iPad 5th', 'iPad6,12':'iPad 5th',
+            'iPad3,4':'iPad 4th', 'iPad3,5':'iPad 4th', 'iPad3,6':'iPad 4th',
+          };
+          deviceInfo.modelName = prods[deviceInfo.productType] || deviceInfo.model || 'iPad';
+          return deviceInfo;
+        } catch {
+          return deviceInfo;
+        }
+      }
+
+      // No libimobiledevice, return basic info from USB detection
+      return { model: 'iPad (USB)', manualMethod: true };
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Get the max iPadOS version an iPad model supports
+   */
+  getMaxIOSVersion(modelName) {
+    const mapping = UpgradeManager.iPadModelMapping;
+    if (mapping[modelName]) return mapping[modelName].maxOS;
+    // Fallback: check by chip
+    for (const [model, info] of Object.entries(mapping)) {
+      if (modelName.toLowerCase().includes(model.toLowerCase().replace(/[^a-z0-9]/g, ''))) {
+        return info.maxOS;
+      }
+    }
+    return 'Unknown';
+  }
+
+  getChipForModel(modelName) {
+    const mapping = UpgradeManager.iPadModelMapping;
+    if (mapping[modelName]) return mapping[modelName].chip;
+    for (const [model, info] of Object.entries(mapping)) {
+      if (modelName.toLowerCase().includes(model.toLowerCase().replace(/[^a-z0-9]/g, ''))) {
+        return info.chip;
+      }
+    }
+    return 'Unknown';
+  }
+
+  /**
+   * Parse iOS version string for comparison (e.g. "10.3.3" → 10,3,3)
+   */
+  parseIOSVersion(version) {
+    const parts = version.split('.').map(Number);
+    return { major: parts[0] || 0, minor: parts[1] || 0, patch: parts[2] || 0 };
+  }
+
+  /**
+   * Check if the device has blocking profiles (tvOS beta profile, MDM)
+   */
+  checkIOSBlockingProfiles(device) {
+    console.log('\n  🔍 Checking for blocking profiles...');
+    try {
+      if (device.serial) {
+        const profiles = execSync(`ideviceprovision list ${device.serial} 2>/dev/null || echo "no profiles"`, { encoding: 'utf8' }).trim();
+        if (profiles.includes('tvOS') || profiles.includes('Beta') || profiles.includes('Apple Internal')) {
+          console.log('  ⚠️  Update-blocking profile found (tvOS beta profile or similar)');
+          console.log('  📝 Remove it by going to: Settings > General > VPN & Device Management');
+          console.log('         or run: ideviceprovision remove <profile>');
+          return { blocked: true, profiles: profiles.split('\n').filter(l => l.trim()).slice(0, 5) };
+        }
+      }
+      console.log('  ✓ No update-blocking profiles found');
+      return { blocked: false };
+    } catch {
+      console.log('  ? Could not check profiles (install libimobiledevice for this feature)');
+      return { blocked: false, error: 'libimobiledevice not available' };
+    }
+  }
+
+  /**
+   * Force iPadOS upgrade guidance
+   */
+  async upgradeIOS() {
+    console.log('\n📱 PhoenixOS — Force iPadOS Upgrade\n');
+
+    console.log('  🎯 Target: iPad → Latest supported iPadOS');
+    console.log('  💪 This guide will help you force-upgrade your iPad even if');
+    console.log('     Apple\'s update mechanism says "up to date"\n');
+
+    // Step 1: Detect device
+    const spinner = require('ora').default || require('ora');
+    let detectStep = spinner('🔍 Detecting connected iOS device...').start();
+
+    const device = await this.detectIOSDevice();
+    if (!device) {
+      detectStep.fail('No iOS device detected');
+      console.log('\n  📋 Connect your iPad via USB and install libimobiledevice:');
+      console.log('     brew install libimobiledevice (macOS)');
+      console.log('     apt install libimobiledevice (Linux)');
+      console.log('\n  🔧 Manual steps:');
+      console.log('     1. Open Finder (macOS) or iTunes (Windows)');
+      console.log('     2. Connect your iPad via USB');
+      console.log('     3. Check for updates in the device summary page');
+      return { success: false, reason: 'no_device_detected' };
+    }
+    detectStep.succeed(`Detected: ${device.modelName || device.model} (iOS ${device.iosVersion || '?'})`);
+
+    // Step 2: Determine max supported version
+    const maxOS = this.getMaxIOSVersion(device.modelName);
+    const chip = this.getChipForModel(device.modelName);
+    console.log(`  🧠 Chip: ${chip}`);
+    console.log(`  📌 Max supported: ${maxOS}`);
+    console.log(`  📱 Current OS: iOS ${device.iosVersion || 'Unknown'}`);
+
+    // Step 3: Check if already at max
+    const currentVer = this.parseIOSVersion(device.iosVersion || '0');
+    if (maxOS.includes('iOS 10')) {
+      if (currentVer.major >= 10) {
+        console.log('\n  ✅ Your iPad is ALREADY on its maximum supported OS');
+        console.log('  ℹ️  iPad 4th gen (A6X) can only run iOS 10.3.3 maximum.');
+        console.log('  ℹ️  The A6X chip does not support any newer iPadOS version.');
+        return { success: true, alreadyMax: true, model: device.modelName };
+      }
+    } else if (maxOS.includes('iPadOS 16')) {
+      if (currentVer.major >= 16) {
+        console.log('\n  ✅ Your iPad is already on iPadOS 16 (its maximum)');
+        return { success: true, alreadyMax: true };
+      }
+    } else if (maxOS.includes('iPadOS 18') || maxOS.includes('iPadOS 17')) {
+      if (device.iosVersion && currentVer.major >= 17) {
+        console.log('\n  ✅ iPadOS is already fairly current');
+      }
     }
 
-    for (const store of stores) {
-      console.log(`    📦 ${store}`);
+    // Step 4: Check for blocking profiles
+    this.checkIOSBlockingProfiles(device);
+
+    // Step 5: Show upgrade guidance
+    console.log('\n  🔥 === FORCE UPGRADE INSTRUCTIONS ===\n');
+
+    const platform = os.platform();
+
+    if (platform === 'darwin') {
+      console.log('  🍎 macOS — Using Finder:');
+      console.log(`     1. Connect iPad to this Mac via USB`);
+      console.log(`     2. Open Finder → select your iPad in sidebar`);
+      console.log(`     3. Click "Check for Update" or "Update"`);
+      console.log(`     4. If "up to date" appears, click again — it often finds updates`);
+      console.log(`     5. If still stuck, click "Restore iPad with latest IPSW" while holding Option`);
+      console.log(`         → This opens a file picker for manual IPSW selection`);
+      console.log(`         → Download the latest IPSW from ipsw.me or similar`);
+      console.log('');
+
+      if (device.iosVersion) {
+        const ver = this.parseIOSVersion(device.iosVersion);
+        // If on a much older version, provide jailbreak link
+        if (ver.major <= 14) {
+          console.log('  🔓 Jailbreak Available (for force OTA enable):');
+          if (chip.startsWith('A') && chip <= 'A11') {
+            console.log('     palera1n: https://palera.in (checkm8 exploit, A7-A11)');
+            console.log('     After jailbreak, install tvOS profile remover');
+            console.log('     Then re-check for OTA updates');
+          } else {
+            console.log('     Dopamine: https://github.com/opa334/Dopamine (A12-A15, up to iOS 16)');
+          }
+          console.log('');
+        }
+      }
+    } else {
+      console.log('  🪟 Windows — Using iTunes:');
+      console.log(`     1. Connect iPad to PC via USB`);
+      console.log(`     2. Open iTunes → click the iPad icon`);
+      console.log(`     3. Click "Check for Update"`);
+      console.log(`     4. If stuck, download IPSW from ipsw.me`);
+      console.log(`     5. Shift+Click "Restore iPad" (Windows) to select IPSW file manually`);
+      console.log('');
     }
 
-    console.log('\n  📋 Post-flash setup guide:');
-    console.log('    1. Boot the device and complete initial setup');
-    console.log('    2. Install MicroG for Google services');
-    console.log('    3. Install Aurora Store for Play Store apps');
-    console.log('    4. Install F-Droid for open source apps');
-    console.log('    5. Install Obtainium for automatic app updates');
+    console.log('  🔧 Optional Tools:');
+    console.log('     3uTools (Windows): https://3utools.com — force flash IPSW with one click');
+    console.log('     libimobiledevice (macOS/Linux): brew install libimobiledevice');
+    console.log('     ideviceupdatecheck: Check for available updates');
+    console.log('     ideviceinstall: Install/remove apps and profiles');
+
+    // Step 6: App store restoration guidance
+    console.log('\n  🏪 Restore App Store (if broken after update):');
+    console.log('     1. Sign out of Apple ID → reboot → sign back in');
+    console.log('     2. If App Store is missing, go to Settings > Screen Time > Content & Privacy');
+    console.log('         → Disable "iTunes Store & App Store Purchases" restrictions');
+    console.log('     3. For sideloading, set up AltStore: https://altstore.io');
+
+    const confirmed = await this.safety.requestConfirmation(
+      '\n  📋 Ready to start the force upgrade process?'
+    );
+
+    if (!confirmed) {
+      console.log('❌ Force upgrade cancelled.');
+      return { success: false, reason: 'cancelled', device: device.modelName };
+    }
+
+    // Try libimobiledevice-based update if available
+    if (device.serial) {
+      try {
+        console.log('\n  📥 Attempting OTA update check via libimobiledevice...');
+        const updateCheck = execSync(`ideviceupdatecheck -s ${device.serial} 2>/dev/null || echo "update check unavailable"`, { encoding: 'utf8' }).trim();
+        if (updateCheck && !updateCheck.includes('unavailable')) {
+          console.log(`  ${updateCheck}`);
+          if (updateCheck.includes('Update available')) {
+            console.log('  🚀 Starting OTA update...');
+            execSync(`ideviceupgrademethod -s ${device.serial} ota 2>/dev/null || true`, { encoding: 'utf8' });
+          }
+        }
+      } catch {}
+    }
+
+    return {
+      success: true,
+      device: device.modelName,
+      currentOS: `iOS ${device.iosVersion || 'Unknown'}`,
+      maxSupported: maxOS,
+      chip,
+    };
   }
 }
 

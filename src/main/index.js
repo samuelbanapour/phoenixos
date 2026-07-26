@@ -101,7 +101,25 @@ ipcMain.handle('upgrade:run', async (event, options) => {
     if (options.type === 'windows') return await manager.upgradeWindows();
     if (options.type === 'macos') return await manager.upgradeMacOS();
     if (options.type === 'android') return await manager.upgradeAndroid(options.rom);
+    if (options.type === 'ios') return await manager.upgradeIOS();
     return { error: 'Unknown upgrade type' };
+  } catch (err) {
+    return { error: err.message };
+  }
+});
+
+// iOS detection
+ipcMain.handle('ios:detect', async () => {
+  try {
+    const manager = new UpgradeManager();
+    const device = await manager.detectIOSDevice();
+    if (device) {
+      // Add model info
+      device.maxSupported = manager.getMaxIOSVersion(device.modelName || device.model);
+      device.chip = manager.getChipForModel(device.modelName || device.model);
+      return device;
+    }
+    return { error: 'No iOS device detected' };
   } catch (err) {
     return { error: err.message };
   }

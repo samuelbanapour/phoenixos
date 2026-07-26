@@ -40,6 +40,11 @@ async function upgradeOS(options) {
         { name: 'Flash Android ROM (requires USB connection)', value: 'android' },
       );
 
+      // iOS/iPadOS detection (always shown — detects via USB)
+      choices.push(
+        { name: 'Force iPadOS upgrade (via USB — latest iPadOS)', value: 'ios' },
+      );
+
       if (choices.length === 0) {
         console.log('  ❌ No upgrade options available for this platform.');
         return;
@@ -82,6 +87,10 @@ async function upgradeOS(options) {
           ],
         }]);
         result = await manager.upgradeAndroid(rom);
+        break;
+
+      case 'ios':
+        result = await manager.upgradeIOS();
         break;
 
       case 'linux':

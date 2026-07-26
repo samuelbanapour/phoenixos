@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld('phoenix', {
   // Downloads
   downloadOS: (url, filename) => ipcRenderer.invoke('os:download', url, filename),
 
+  // iOS detection
+  detectIOS: () => ipcRenderer.invoke('ios:detect'),
+
   // Window controls
   minimize: () => ipcRenderer.send('window:minimize'),
   maximize: () => ipcRenderer.send('window:maximize'),

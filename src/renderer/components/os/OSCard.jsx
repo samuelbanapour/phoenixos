@@ -7,6 +7,10 @@ const categoryIcons = {
   Mobile: HardDrive,
   Gaming: Gamepad2,
   Server: Server,
+  desktop: HardDrive,
+  mobile: HardDrive,
+  gaming: Gamepad2,
+  server: Server,
 };
 
 export default function OSCard({ os, onSelect, compact = false }) {

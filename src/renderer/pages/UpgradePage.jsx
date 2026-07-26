@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { ArrowUpCircle, RefreshCw, Zap, CheckCircle, AlertTriangle } from "lucide-react";
+import { ArrowUpCircle, RefreshCw, Zap, CheckCircle, AlertTriangle, Smartphone } from "lucide-react";
 import StepIndicator from "../components/shared/StepIndicator";
 import ProgressRing from "../components/media/ProgressRing";
 import SafetyWarning from "../components/shared/SafetyWarning";
@@ -15,6 +15,13 @@ const upgradeTargets = {
     { id: "linux", name: "Distro Upgrade", desc: "Upgrade to latest version", icon: "🐧" },
   ],
 };
+
+const iosTargets = [
+  { id: "ios", name: "Force iPadOS Upgrade", desc: "Latest iPadOS via IPSW restore", icon: "🔥" },
+  { id: "ios-profiles", name: "Remove Blocking Profiles", desc: "Delete tvOS beta / MDM blocks", icon: "🔓" },
+  { id: "ios-jailbreak", name: "Jailbreak (if applicable)", desc: "palera1n, Dopamine, etc.", icon: "🛠️" },
+  { id: "ios-sideload", name: "Setup Sideloading", desc: "AltStore, Sideloadly, ESign", icon: "📦" },
+];
 
 const steps = ["Detect", "Select Target", "Backup", "Upgrade", "Verify"];
 
@@ -61,9 +68,36 @@ export default function UpgradePage() {
     setCurrentStep(3);
     setProgress(0);
     setProgressStatus("active");
-    setMessage("Backing up boot configuration...");
 
-    // Simulate backup
+    // For iOS, use the actual upgrade guidance flow
+    if (selectedTarget?.id === "ios") {
+      setMessage("Detecting iOS device and preparing force upgrade...");
+      setProgress(30);
+      try {
+        const result = await window.phoenix?.runUpgrade({ type: "ios" });
+        if (result?.success) {
+          setProgress(100);
+          setProgressStatus("success");
+          setMessage(result.alreadyMax
+            ? `Device is already at max supported OS`
+            : "Force upgrade guidance complete!"
+          );
+        } else {
+          setProgress(50);
+          setProgressStatus("warning");
+          setMessage(result?.reason || "Device not detected — see guidance above");
+        }
+      } catch (err) {
+        setProgress(0);
+        setProgressStatus("error");
+        setMessage(`iOS upgrade failed: ${err.message}`);
+      }
+      setCurrentStep(4);
+      return;
+    }
+
+    // Simulated progress for other platforms
+    setMessage("Backing up boot configuration...");
     await new Promise((r) => setTimeout(r, 1000));
 
     setMessage("Starting upgrade...");
@@ -83,6 +117,7 @@ export default function UpgradePage() {
 
   const targets = currentOS ? (upgradeTargets[currentOS.platform] || []) : [];
   const hasAndroid = true; // Always show Android option
+  const hasIOS = true; // Always show iOS option
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">
@@ -166,6 +201,20 @@ export default function UpgradePage() {
               <p className="text-sm text-dark-400">LineageOS, /e/OS, BlissOS</p>
               <p className="text-xs text-dark-500 mt-2">Requires USB connection to Android device</p>
             </button>
+
+            {/* iOS option */}
+            <button
+              onClick={() => handleSelectTarget({ id: "ios", name: "Force iPadOS Upgrade", desc: "Latest iPadOS via IPSW restore", icon: "📱" })}
+              className="glass rounded-xl p-5 text-left hover:bg-dark-800/50 transition-all group"
+            >
+              <span className="text-3xl mb-2 block">📱</span>
+              <p className="text-white font-semibold">Force iPadOS Upgrade</p>
+              <p className="text-sm text-dark-400">Latest iPadOS via computer restore</p>
+              <p className="text-xs text-phoenix-400 mt-2 flex items-center gap-1">
+                <Zap className="w-3 h-3" />
+                Force install IPSW bypass
+              </p>
+            </button>
           </div>
         </div>
       )}
@@ -196,11 +245,24 @@ export default function UpgradePage() {
 
       {/* Completion */}
       {currentStep === 4 && (
-        <div className="glass rounded-xl p-6 border-l-4 border-green-500 flex items-center gap-3">
-          <CheckCircle className="w-6 h-6 text-green-500" />
+        <div className={`glass rounded-xl p-6 border-l-4 flex items-center gap-3 ${
+          progressStatus === "error" ? "border-red-500" :
+          progressStatus === "warning" ? "border-yellow-500" :
+          "border-green-500"
+        }`}>
+          {progressStatus === "error" ? <AlertTriangle className="w-6 h-6 text-red-500" /> :
+           progressStatus === "warning" ? <AlertTriangle className="w-6 h-6 text-yellow-500" /> :
+           <CheckCircle className="w-6 h-6 text-green-500" />}
           <div>
-            <p className="text-white font-semibold">Upgrade Complete!</p>
+            <p className="text-white font-semibold">
+              {selectedTarget?.id === "ios" ? "Force Upgrade Guidance Ready" : "Upgrade Complete!"}
+            </p>
             <p className="text-sm text-dark-400">{message}</p>
+            {selectedTarget?.id === "ios" && (
+              <p className="text-xs text-dark-500 mt-2">
+                📋 Full guidance printed to terminal / DevTools console — check there for detailed steps
+              </p>
+            )}
           </div>
         </div>
       )}
