@@ -1,0 +1,110 @@
+{
+  "devices": [
+    {
+      "id": "macbook-pro-2015",
+      "name": "MacBook Pro (2015)",
+      "platform": "darwin",
+      "cpu": "Intel Core i7-4980HQ",
+      "ram": 16,
+      "maxOS": "Monterey (12)",
+      "recommendedOS": ["macos_sonoma", "macos_ventura", "ubuntu", "chromeosflex"],
+      "bypassAvailable": true,
+      "bypassType": "oclp",
+      "notes": "Excellent candidate for OCLP — runs Sonoma/Sequoia with patches"
+    },
+    {
+      "id": "macbook-air-2017",
+      "name": "MacBook Air (2017)",
+      "platform": "darwin",
+      "cpu": "Intel Core i5-5350U",
+      "ram": 8,
+      "maxOS": "Catalina (10.15)",
+      "recommendedOS": ["macos_ventura", "ubuntu", "chromeosflex"],
+      "bypassAvailable": true,
+      "bypassType": "oclp",
+      "notes": "OCLP supports up to Sequoia on this model"
+    },
+    {
+      "id": "imac-2014",
+      "name": "iMac (2014)",
+      "platform": "darwin",
+      "cpu": "Intel Core i5-4570",
+      "ram": 8,
+      "maxOS": "Big Sur (11)",
+      "recommendedOS": ["macos_sonoma", "ubuntu", "chromeosflex"],
+      "bypassAvailable": true,
+      "bypassType": "oclp"
+    },
+    {
+      "id": "thinkpad-t440",
+      "name": "Lenovo ThinkPad T440",
+      "platform": "win32",
+      "cpu": "Intel Core i5-4300U",
+      "ram": 8,
+      "maxOS": "Windows 10",
+      "recommendedOS": ["windows10", "ubuntu", "linuxmint", "chromeosflex"],
+      "bypassAvailable": true,
+      "bypassType": "windows11-tpm",
+      "notes": "Windows 11 works with TPM bypass — 4th Gen Intel"
+    },
+    {
+      "id": "thinkpad-x230",
+      "name": "Lenovo ThinkPad X230",
+      "platform": "win32",
+      "cpu": "Intel Core i5-3320M",
+      "ram": 8,
+      "maxOS": "Windows 10",
+      "recommendedOS": ["windows10", "ubuntu", "linuxmint", "chromeosflex"],
+      "bypassAvailable": true,
+      "bypassType": "windows11-tpm",
+      "notes": "Classic ThinkPad — Linux runs great on it"
+    },
+    {
+      "id": "optiplex-780",
+      "name": "Dell OptiPlex 780",
+      "platform": "win32",
+      "cpu": "Intel Core 2 Duo E8400",
+      "ram": 4,
+      "maxOS": "Windows 7",
+      "recommendedOS": ["linuxmint", "chromeosflex", "arch"],
+      "bypassAvailable": false,
+      "notes": "Too old for Windows 11 — Linux Mint or ChromeOS Flex recommended"
+    },
+    {
+      "id": "pixel-4a",
+      "name": "Google Pixel 4a",
+      "platform": "android",
+      "cpu": "Snapdragon 730G",
+      "ram": 6,
+      "maxAndroid": "Android 14 (official)",
+      "recommendedOS": ["lineageos", "eos"],
+      "bypassAvailable": true,
+      "bypassType": "treble",
+      "notes": "Official support ended — LineageOS keeps it alive"
+    },
+    {
+      "id": "samsung-s9",
+      "name": "Samsung Galaxy S9",
+      "platform": "android",
+      "cpu": "Snapdragon 845 / Exynos 9810",
+      "ram": 4,
+      "maxAndroid": "Android 10 (official)",
+      "recommendedOS": ["lineageos", "eos"],
+      "bypassAvailable": true,
+      "bypassType": "treble",
+      "notes": "Great candidate for LineageOS — excellent Treble support"
+    },
+    {
+      "id": "oneplus-6",
+      "name": "OnePlus 6",
+      "platform": "android",
+      "cpu": "Snapdragon 845",
+      "ram": 6,
+      "maxAndroid": "Android 11 (official)",
+      "recommendedOS": ["lineageos", "eos", "blissos"],
+      "bypassAvailable": true,
+      "bypassType": "treble",
+      "notes": "Excellent custom ROM support"
+    }
+  ]
+}

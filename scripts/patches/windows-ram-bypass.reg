@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+; PhoenixOS - Windows 11 RAM Size Bypass
+; Bypasses the minimum 4GB RAM requirement check
+; Apply during OOBE via Shift+F10 Command Prompt: reg import windows-ram-bypass.reg
+
+[HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig]
+"BypassRAMCheck"=dword:00000001

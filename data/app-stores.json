@@ -1,0 +1,123 @@
+{
+  "windows": {
+    "stores": [
+      {
+        "id": "microsoft-store",
+        "name": "Microsoft Store",
+        "description": "Official Microsoft app marketplace",
+        "installMethod": "enable-feature",
+        "steps": [
+          "Open Settings > Apps > Optional Features",
+          "Click 'Add a feature' > search for 'Microsoft Store'",
+          "Install and restart"
+        ],
+        "powershellCommand": "Get-AppxPackage -allusers Microsoft.WindowsStore | Foreach {Add-AppxPackage -DisableDevelopmentMode -Register \"$($_.InstallLocation)\\AppXManifest.xml\"}"
+      },
+      {
+        "id": "winget",
+        "name": "Winget",
+        "description": "Windows Package Manager CLI",
+        "installMethod": "download",
+        "url": "https://github.com/microsoft/winget-cli/releases",
+        "note": "Install via App Installer from Microsoft Store, or manually from GitHub"
+      }
+    ]
+  },
+  "macos": {
+    "stores": [
+      {
+        "id": "mac-app-store",
+        "name": "Mac App Store",
+        "description": "Official Apple app marketplace",
+        "installMethod": "system",
+        "note": "Pre-installed. If missing, reinstall via macOS Recovery (Cmd+R at boot)"
+      },
+      {
+        "id": "homebrew",
+        "name": "Homebrew",
+        "description": "macOS package manager",
+        "installMethod": "script",
+        "command": "/bin/bash -c \"$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+      }
+    ]
+  },
+  "linux": {
+    "stores": [
+      {
+        "id": "flatpak",
+        "name": "Flatpak + Flathub",
+        "description": "Universal Linux package system with Flathub repository",
+        "installMethod": "package-manager",
+        "commands": {
+          "ubuntu": "sudo apt install flatpak && flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+          "fedora": "sudo dnf install flatpak && flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+          "arch": "sudo pacman -S flatpak && flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo",
+          "mint": "sudo apt install flatpak && flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo"
+        }
+      },
+      {
+        "id": "snap",
+        "name": "Snap Store",
+        "description": "Canonical's universal package system",
+        "installMethod": "package-manager",
+        "commands": {
+          "ubuntu": "sudo snap install snap-store",
+          "default": "sudo apt install snapd"
+        }
+      }
+    ]
+  },
+  "android": {
+    "stores": [
+      {
+        "id": "aurora-store",
+        "name": "Aurora Store",
+        "description": "Anonymous Google Play Store client",
+        "url": "https://auroraoss.com/downloads/AuroraStore/Release/",
+        "installMethod": "sideload-apk",
+        "note": "Download APK and install via adb or file manager"
+      },
+      {
+        "id": "f-droid",
+        "name": "F-Droid",
+        "description": "FOSS Android app repository",
+        "url": "https://f-droid.org/F-Droid.apk",
+        "installMethod": "sideload-apk"
+      },
+      {
+        "id": "microg",
+        "name": "MicroG",
+        "description": "Open-source Google Play Services replacement",
+        "url": "https://microg.org/download.html",
+        "installMethod": "sideload-apk",
+        "note": "Required for apps that depend on Google Play Services"
+      },
+      {
+        "id": "obtainium",
+        "name": "Obtainium",
+        "description": "Direct APK updates from source",
+        "url": "https://github.com/ImranR98/Obtainium/releases",
+        "installMethod": "sideload-apk"
+      }
+    ]
+  },
+  "ios": {
+    "stores": [
+      {
+        "id": "altstore",
+        "name": "AltStore",
+        "description": "Sideloading tool for IPA files using Apple ID",
+        "url": "https://altstore.io/",
+        "installMethod": "computer-required",
+        "note": "Requires AltServer running on Mac/Windows to refresh certificates"
+      },
+      {
+        "id": "sideloadly",
+        "name": "Sideloadly",
+        "description": "IPA sideloading tool for Windows/Mac",
+        "url": "https://sideloadly.io/",
+        "installMethod": "computer-required"
+      }
+    ]
+  }
+}

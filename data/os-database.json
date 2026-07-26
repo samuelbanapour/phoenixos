@@ -1,0 +1,289 @@
+{
+  "oses": [
+    {
+      "id": "windows11",
+      "os": "Windows 11",
+      "version": "23H2",
+      "category": "desktop",
+      "manufacturer": "Microsoft",
+      "website": "https://www.microsoft.com/software-download/windows11",
+      "requirements": {
+        "cpu": { "minCores": 2, "minSpeedGHz": 1.0, "architecture": "x64", "minGeneration": "8th Gen Intel / Ryzen 2000" },
+        "memory": { "minGB": 4, "recommendedGB": 8 },
+        "storage": { "minGB": 64 },
+        "tpm": { "version": "2.0", "required": true },
+        "secureBoot": true,
+        "bootMode": "UEFI",
+        "display": { "minResolution": "720p", "minSize": 9 }
+      },
+      "appStore": "Microsoft Store",
+      "appStoreNotes": "Enable via Settings > Apps > Optional Features or use Winget",
+      "bypassAvailable": true,
+      "bypassTypes": ["tpm", "cpu", "ram", "secureBoot", "boot"],
+      "notes": "Force install bypasses TPM 2.0, CPU generation, RAM, and Secure Boot checks"
+    },
+    {
+      "id": "windows10",
+      "os": "Windows 10",
+      "version": "22H2",
+      "category": "desktop",
+      "manufacturer": "Microsoft",
+      "website": "https://www.microsoft.com/software-download/windows10",
+      "requirements": {
+        "cpu": { "minCores": 1, "minSpeedGHz": 1.0, "architecture": "x64" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 32 },
+        "tpm": { "required": false },
+        "secureBoot": false,
+        "bootMode": "BIOS or UEFI"
+      },
+      "appStore": "Microsoft Store",
+      "appStoreNotes": "Pre-installed, can be reinstalled via PowerShell",
+      "bypassAvailable": false,
+      "notes": "Good fallback for older hardware that cannot run Windows 11"
+    },
+    {
+      "id": "windowsltsc",
+      "os": "Windows 10 LTSC",
+      "version": "2021",
+      "category": "desktop",
+      "manufacturer": "Microsoft",
+      "requirements": {
+        "cpu": { "minCores": 1, "minSpeedGHz": 1.0, "architecture": "x64" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 32 },
+        "tpm": { "required": false },
+        "secureBoot": false,
+        "bootMode": "BIOS or UEFI"
+      },
+      "appStore": "Winget",
+      "appStoreNotes": "No Store by default — Winget can be installed manually",
+      "bypassAvailable": false,
+      "notes": "Minimal Windows with 10-year support, no bloatware"
+    },
+    {
+      "id": "macos_sequoia",
+      "os": "macOS Sequoia",
+      "version": "15.x",
+      "category": "desktop",
+      "manufacturer": "Apple",
+      "requirements": {
+        "cpu": { "architecture": "ARM64 or x64", "minGeneration": "2018 Mac or Apple Silicon" },
+        "memory": { "minGB": 4, "recommendedGB": 8 },
+        "storage": { "minGB": 35 },
+        "tpm": { "required": false },
+        "secureBoot": false,
+        "bootMode": "UEFI"
+      },
+      "appStore": "Mac App Store",
+      "appStoreNotes": "Pre-installed, may require Apple ID re-login",
+      "bypassAvailable": true,
+      "bypassTypes": ["oclp"],
+      "notes": "Latest macOS — OCLP needed for pre-2018 Macs"
+    },
+    {
+      "id": "macos_sonoma",
+      "os": "macOS Sonoma",
+      "version": "14.x",
+      "category": "desktop",
+      "manufacturer": "Apple",
+      "requirements": {
+        "cpu": { "architecture": "ARM64 or x64", "minGeneration": "2017 Mac or newer" },
+        "memory": { "minGB": 4, "recommendedGB": 8 },
+        "storage": { "minGB": 35 }
+      },
+      "appStore": "Mac App Store",
+      "bypassAvailable": true,
+      "bypassTypes": ["oclp"],
+      "notes": "Good balance of features and compatibility"
+    },
+    {
+      "id": "macos_ventura",
+      "os": "macOS Ventura",
+      "version": "13.x",
+      "category": "desktop",
+      "manufacturer": "Apple",
+      "requirements": {
+        "cpu": { "architecture": "ARM64 or x64", "minGeneration": "2016 Mac or newer" },
+        "memory": { "minGB": 4, "recommendedGB": 8 },
+        "storage": { "minGB": 35 }
+      },
+      "appStore": "Mac App Store",
+      "bypassAvailable": true,
+      "bypassTypes": ["oclp"],
+      "notes": "Good for Macs from 2016-2017"
+    },
+    {
+      "id": "ubuntu",
+      "os": "Ubuntu",
+      "version": "24.04 LTS",
+      "category": "desktop",
+      "manufacturer": "Canonical",
+      "website": "https://ubuntu.com/download/desktop",
+      "requirements": {
+        "cpu": { "minCores": 2, "minSpeedGHz": 2.0, "architecture": "x64 or ARM64" },
+        "memory": { "minGB": 4, "recommendedGB": 8 },
+        "storage": { "minGB": 25 },
+        "tpm": { "required": false },
+        "secureBoot": false,
+        "bootMode": "BIOS or UEFI"
+      },
+      "appStore": "Flatpak + Snap",
+      "appStoreNotes": "Snap Store pre-installed, Flatpak available",
+      "bypassAvailable": false,
+      "notes": "Most popular Linux desktop, large community, LTS releases"
+    },
+    {
+      "id": "linuxmint",
+      "os": "Linux Mint",
+      "version": "22",
+      "category": "desktop",
+      "manufacturer": "Linux Mint Team",
+      "website": "https://linuxmint.com/download.php",
+      "requirements": {
+        "cpu": { "minCores": 1, "minSpeedGHz": 1.0, "architecture": "x64" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 15 },
+        "tpm": { "required": false },
+        "bootMode": "BIOS or UEFI"
+      },
+      "appStore": "Flatpak",
+      "appStoreNotes": "Flatpak support built-in, Software Manager GUI",
+      "bypassAvailable": false,
+      "notes": "Best for Windows refugees — familiar Cinnamon desktop"
+    },
+    {
+      "id": "fedora",
+      "os": "Fedora Workstation",
+      "version": "40",
+      "category": "desktop",
+      "manufacturer": "Red Hat",
+      "website": "https://getfedora.org/workstation/download/",
+      "requirements": {
+        "cpu": { "minCores": 2, "minSpeedGHz": 1.0, "architecture": "x64 or ARM64" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 20 },
+        "tpm": { "required": false },
+        "bootMode": "UEFI preferred"
+      },
+      "appStore": "Flatpak",
+      "appStoreNotes": "Flathub integration built into Software app",
+      "bypassAvailable": false,
+      "notes": "Cutting-edge packages, upstream for RHEL/CentOS"
+    },
+    {
+      "id": "chromeosflex",
+      "os": "ChromeOS Flex",
+      "version": "Latest",
+      "category": "lightweight",
+      "manufacturer": "Google",
+      "website": "https://chromeenterprise.google/os/chromeos-flex/",
+      "requirements": {
+        "cpu": { "minCores": 1, "minSpeedGHz": 1.0, "architecture": "x64" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 16 },
+        "tpm": { "required": false },
+        "secureBoot": false,
+        "bootMode": "BIOS or UEFI"
+      },
+      "appStore": "Google Play Store (limited)",
+      "appStoreNotes": "Web apps + Android apps (select devices)",
+      "bypassAvailable": false,
+      "notes": "Best lightweight option for old laptops — fast, secure, simple"
+    },
+    {
+      "id": "steamos",
+      "os": "SteamOS",
+      "version": "3.x",
+      "category": "gaming",
+      "manufacturer": "Valve",
+      "requirements": {
+        "cpu": { "minCores": 2, "minSpeedGHz": 2.0, "architecture": "x64" },
+        "memory": { "minGB": 4, "recommendedGB": 8 },
+        "storage": { "minGB": 64 },
+        "tpm": { "required": false },
+        "bootMode": "UEFI"
+      },
+      "appStore": "Steam",
+      "appStoreNotes": "Steam client + Proton for Windows game compatibility",
+      "bypassAvailable": false,
+      "notes": "Best for gaming PCs — Valve's Steam Deck OS, full Steam library"
+    },
+    {
+      "id": "arch",
+      "os": "Arch Linux",
+      "version": "Rolling",
+      "category": "desktop",
+      "manufacturer": "Arch Linux Team",
+      "website": "https://archlinux.org/download/",
+      "requirements": {
+        "cpu": { "minCores": 1, "minSpeedGHz": 1.0, "architecture": "x64 or ARM64" },
+        "memory": { "minGB": 1, "recommendedGB": 2 },
+        "storage": { "minGB": 2 },
+        "tpm": { "required": false },
+        "bootMode": "BIOS or UEFI"
+      },
+      "appStore": "pacman + AUR",
+      "appStoreNotes": "pacman for official repos, AUR for community packages, Flatpak optional",
+      "bypassAvailable": false,
+      "notes": "Minimal and customizable — for experienced users"
+    },
+    {
+      "id": "lineageos",
+      "os": "LineageOS",
+      "version": "21",
+      "category": "mobile",
+      "manufacturer": "LineageOS Team",
+      "website": "https://lineageos.org/",
+      "requirements": {
+        "cpu": { "architecture": "ARM64" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 8 },
+        "tpm": { "required": false },
+        "bootMode": "Unlocked bootloader"
+      },
+      "appStore": "Aurora Store + F-Droid",
+      "appStoreNotes": "MicroG for Google Play compatibility",
+      "bypassAvailable": true,
+      "bypassTypes": ["treble", "gsi"],
+      "notes": "Most popular custom Android ROM — wide device support"
+    },
+    {
+      "id": "eos",
+      "os": "/e/OS",
+      "version": "2.x",
+      "category": "mobile",
+      "manufacturer": "e Foundation",
+      "website": "https://e.foundation/",
+      "requirements": {
+        "cpu": { "architecture": "ARM64 or ARM32" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 8 },
+        "bootMode": "Unlocked bootloader"
+      },
+      "appStore": "/e/OS App Lounge",
+      "appStoreNotes": "De-Googled Play Store alternative",
+      "bypassAvailable": true,
+      "bypassTypes": ["treble", "gsi"],
+      "notes": "Privacy-focused de-Googled Android — best for privacy-conscious users"
+    },
+    {
+      "id": "blissos",
+      "os": "BlissOS",
+      "version": "15",
+      "category": "mobile",
+      "manufacturer": "BlissOS Team",
+      "website": "https://blissos.org/",
+      "requirements": {
+        "cpu": { "architecture": "x64 or ARM64" },
+        "memory": { "minGB": 2, "recommendedGB": 4 },
+        "storage": { "minGB": 8 },
+        "bootMode": "Unlocked bootloader or x86 PC"
+      },
+      "appStore": "Aurora Store + F-Droid",
+      "bypassAvailable": true,
+      "bypassTypes": ["treble", "gsi"],
+      "notes": "Android-x86 for PCs, also supports ARM devices via Treble"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+Windows Registry Editor Version 5.00
+
+; PhoenixOS - Windows 11 CPU Generation Bypass
+; Bypasses the CPU generation check (requires 8th Gen Intel / Ryzen 2000+)
+; Apply during OOBE via Shift+F10 Command Prompt: reg import windows-cpu-bypass.reg
+
+[HKEY_LOCAL_MACHINE\SYSTEM\Setup\LabConfig]
+"BypassCPUCheck"=dword:00000001

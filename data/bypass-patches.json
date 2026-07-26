@@ -1,0 +1,67 @@
+{
+  "windows11": {
+    "tpm": {
+      "name": "TPM 2.0 Bypass",
+      "type": "registry",
+      "description": "Bypasses the TPM 2.0 requirement check during Windows 11 installation",
+      "registryKeys": [
+        { "path": "HKLM\\SYSTEM\\Setup\\LabConfig", "name": "BypassTPMCheck", "type": "REG_DWORD", "value": "1" }
+      ]
+    },
+    "cpu": {
+      "name": "CPU Generation Bypass",
+      "type": "registry",
+      "description": "Bypasses the CPU generation check (8th Gen+ Intel / Ryzen 2000+)",
+      "registryKeys": [
+        { "path": "HKLM\\SYSTEM\\Setup\\LabConfig", "name": "BypassCPUCheck", "type": "REG_DWORD", "value": "1" }
+      ]
+    },
+    "ram": {
+      "name": "RAM Size Bypass",
+      "type": "registry",
+      "description": "Bypasses the minimum 4GB RAM requirement check",
+      "registryKeys": [
+        { "path": "HKLM\\SYSTEM\\Setup\\LabConfig", "name": "BypassRAMCheck", "type": "REG_DWORD", "value": "1" }
+      ]
+    },
+    "secureBoot": {
+      "name": "Secure Boot Bypass",
+      "type": "registry",
+      "description": "Bypasses the Secure Boot requirement check",
+      "registryKeys": [
+        { "path": "HKLM\\SYSTEM\\Setup\\LabConfig", "name": "BypassSecureBootCheck", "type": "REG_DWORD", "value": "1" }
+      ]
+    },
+    "storage": {
+      "name": "Storage Size Bypass",
+      "type": "registry",
+      "description": "Bypasses the minimum 64GB storage requirement check",
+      "registryKeys": [
+        { "path": "HKLM\\SYSTEM\\Setup\\LabConfig", "name": "BypassStorageCheck", "type": "REG_DWORD", "value": "1" }
+      ]
+    }
+  },
+  "macos": {
+    "oclp": {
+      "name": "OpenCore Legacy Patcher",
+      "type": "script",
+      "description": "Patches macOS installer to run on unsupported Macs via OpenCore bootloader",
+      "supportedVersions": ["Monterey", "Ventura", "Sonoma", "Sequoia"],
+      "note": "Requires creating OCLP USB with patched OpenCore EFI"
+    }
+  },
+  "android": {
+    "treble": {
+      "name": "Treble GSI Support",
+      "type": "image",
+      "description": "Generic System Image for Treble-compatible Android devices",
+      "note": "Device must support Project Treble (most Android 8.0+ devices)"
+    },
+    "gsi": {
+      "name": "Generic System Image",
+      "type": "image",
+      "description": "AOSP GSI for custom ROM flashing",
+      "note": "Requires unlocked bootloader and custom recovery (TWRP)"
+    }
+  }
+}
